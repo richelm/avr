@@ -47,3 +47,24 @@ display. Initially the rows will be driven by 5 I/O pins on the 328.
     CR5 -- 4     9 -- CR4
     CR6 -- 5     8 -- AC5
     CR7 -- 6     7 -- AC4
+
+## 74HC595
+
+     Q1 -- 1    16 -- VCC
+     Q2 -- 2    15 -- Q0
+     Q3 -- 3    14 -- DS
+     Q4 -- 4    13 -- OE
+     Q5 -- 5    12 -- ST_CP
+     Q6 -- 6    11 -- SH_CP
+     Q7 -- 7    10 -- MR
+    GND -- 8     9 -- Q7”
+
+    PINS 1-7, 15 	Q0 - Q7 	Output Pins
+    PIN 8 	GND 	Ground, Vss
+    PIN 9 	Q7" 	Serial Out
+    PIN 10 	MR 	Master Reclear, active low
+    PIN 11 	SH_CP 	Shift register clock pin
+    PIN 12 	ST_CP 	Storage register clock pin (latch pin)
+    PIN 13 	OE 	Output enable, active low
+    PIN 14 	DS 	Serial data input
+    PIN 16 	Vcc 	Positive supply voltage
