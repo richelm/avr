@@ -16,9 +16,10 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#define INA		PD2
-#define INB		PD3
-#define INC		PD4
+// 4051 CBA input address pins
+#define A		PD2
+#define B		PD3
+#define C		PD4
 
 int main(void)
 {
@@ -26,35 +27,15 @@ int main(void)
 	
     const int msecsDelayPost = 500;
  
-    // Set up Port D pins 2, 3, and 4 as output
-    DDRD |= ((1 << INA) | (1 << INB) | (1 << INC));
+    // Set 4051 CBA input address pins as output
+    DDRD |= ((1 << A) | (1 << B) | (1 << C));
 
-    // Initialize A, B, C on 4051 to low
-    PORTD &= 0b11100011;  
- 
     while (1) {
-		for (i = 1; i < 8; i++) {
-			PORTD ^= (1 << INA);
-			_delay_ms (msecsDelayPost);
-			PORTD ^= (1 << INA);
-			PORTD ^= (1 << INB);
-			_delay_ms (msecsDelayPost);
-			PORTD ^= (1 << INA);
-			_delay_ms (msecsDelayPost);
-			PORTD ^= (1 << INA);
-			PORTD ^= (1 << INB);
-			PORTD ^= (1 << INC);
-			_delay_ms (msecsDelayPost);
-			PORTD ^= (1 << INA);
-			_delay_ms (msecsDelayPost);
-			PORTD ^= (1 << INA);
-			PORTD ^= (1 << INB);
-			_delay_ms (msecsDelayPost);
-			PORTD ^= (1 << INA);
-			_delay_ms (msecsDelayPost);
-			PORTD ^= (1 << INA);
-			PORTD ^= (1 << INB);
-			PORTD ^= (1 << INC);
+		for (i = 7; i > 0; i--) {
+			// clear 4051 CBA input address pins 
+			PORTD &= ~((1 << A) | (1 << B) | (1 << C));
+			// set 4051 CBA input address pins
+			PORTD |= (i << 2);
 			_delay_ms (msecsDelayPost);
 		}
     }
