@@ -1,10 +1,7 @@
 /*
- * ATMEGA328 LTP747 Test 2
- * File: ltp747t2.c
+ * ATMEGA328 LTP747 Sign
+ * File: ltp747.c
  * Date: 3/4/2017
- * 
- * This test scrolls a veritical line across the matrix from right to 
- * left.
  * 
  * The LTP747R has anode columns and cathode rows in 5X7 orientation.
  * Here the LTP747R is being displayed sideways 7x5, we have anode rows
@@ -41,6 +38,40 @@
 #define AR3		PC3
 #define AR4		PC4
 #define AR5		PC5
+
+// message to display; 15 character MAX; must be define as global constant
+const char	mesg[] PROGMEM = "HELLO WORLD ";
+
+// valid letters in message
+const unsigned char  letters[27][6] PROGMEM = {
+	{00,00,00,00,00,},  // space
+	{15,20,20,15,00,},  // A
+	{31,21,21,10,00,},  // B
+	{14,17,17,17,00,},  // C
+	{31,17,17,14,00,},  // D
+	{31,21,21,17,00,},  // E
+	{31,20,20,16,00,},  // F
+	{14,17,21,06,00,},  // G
+	{31,04,04,31,00,},  // H
+	{17,31,17,00,00,},  // I
+	{02,01,30,00,00,},  // J
+	{31,04,10,17,00,},  // K
+	{31,01,01,00,00,},  // L
+	{31,08,04,08,31,},  // M
+	{31,08,04,02,31,},  // N
+	{14,17,17,17,14,},  // O
+	{31,20,20,28,00,},  // P
+	{14,17,17,14,01,},  // Q
+	{31,20,20,11,00,},  // R
+	{09,21,21,18,00,},  // S
+	{16,31,16,00,00,},  // T
+	{30,01,01,30,00,},  // U
+	{28,02,01,02,28,},  // V
+	{31,02,04,02,31,},  // W
+	{17,10,04,10,17,},  // X
+	{16,08,07,08,16,},  // Y
+	{17,19,21,25,00,}   // Z
+}
 
 int main(void) {
 	uint8_t i;
