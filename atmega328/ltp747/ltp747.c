@@ -43,7 +43,7 @@
 const char	mesg[] PROGMEM = "HELLO WORLD ";
 
 // valid letters in message
-const unsigned char  letters[27][6] PROGMEM = {
+const unsigned char  letters[27][5] PROGMEM = {
 	{00,00,00,00,00,},  // space
 	{15,20,20,15,00,},  // A
 	{31,21,21,10,00,},  // B
