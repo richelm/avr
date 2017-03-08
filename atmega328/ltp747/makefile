@@ -1,5 +1,5 @@
 # AVR-GCC Makefile for AVR ATMEGA328 programs
-PROJECT=ltp747t2
+PROJECT=ltp747t3
 SOURCES=$(PROJECT).c
 CC=avr-gcc
 OBJCOPY=avr-objcopy

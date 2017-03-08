@@ -74,9 +74,11 @@ const unsigned char  letters[27][5] PROGMEM = {
 }
 
 int main(void) {
-	uint8_t i;
+	uint8_t i;    // general purpose loop counter
+	unit8_t cidx; // index character column segments
 	uint8_t r;
 	uint8_t rlc;
+	unsigned char segments[7];
 	
     const int msecsDelayPost = 5;
     const int rowLoopCount = 15;
@@ -88,9 +90,65 @@ int main(void) {
 	DDRC |= ((1 << AR1) | (1 << AR2) | (1 << AR3)
 			| (1 << AR4)| (1 << AR5));
 	
+	// initialize columns[] to be off
+	for	(i = 0; i < 7; ++i) {
+		segments[i] = 0x00;
+	}
+
+	while (1)
+	{
+		for (i = 0; (i < MAXLEN && pgm_read_byte(&(mesg[i])) != 0); ++i) {
+			ltr = pgm_read_byte(&(mesg[i]));
+			if (ltr == 32)
+				ltr = 0;
+			else
+				ltr = ltr - 64;
+			
+			// loop through segments of the character
+			for (j = 0; j < 5; ++j) {
+				segments[0] = segments[1];
+				segments[1] = segments[2];
+				segments[2] = segments[3];
+				segments[3] = segments[4];
+				segments[4] = segments[5];
+				segments[5] = segements[6];
+				segments[6] = pgm_read_byte(&(letters[ltr][j]));
+				
+				for (p = 0; p < 10; ++p) {
+					n = 0;
+					col = 1;
+					while (n < 5) {
+						PORTB = col;
+						PORTD = segments[n];
+						_delay_ms (msecsDelay);
+						col = col * 2;
+						n++;
+					}
+				}
+			} // end loop through segments of character
+		}
+	}
+	return 1;
+}
+
+
+
+
+
+
+
+
+
+
+	
     while (1) {
 		// loop through the cathode columns
 		for (i = 7; i > 0; i--) {
+			// clear 4051 CBA input address pins 
+			PORTD &= ~((1 << A) | (1 << B) | (1 << C));
+			// set 4051 CBA input address pins
+			PORTD |= (i << 2); // shift 2 to skip PD0 and PD1
+			
 			// loop through anode rows
 			for (rlc = 1; rlc < rowLoopCount; rlc++) {
 				for (r = 5; r > 0; r--) {
@@ -103,10 +161,7 @@ int main(void) {
 				}
 			}
 			
-			// clear 4051 CBA input address pins 
-			PORTD &= ~((1 << A) | (1 << B) | (1 << C));
-			// set 4051 CBA input address pins
-			PORTD |= (i << 2); // shift 2 to skip PD0 and PD1
+
 		}
     }
  

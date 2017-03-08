@@ -1,9 +1,9 @@
 /*
- * ATMEGA328 LTP747 Test 2
- * File: ltp747t2.c
+ * ATMEGA328 LTP747 Test 3
+ * File: ltp747t3.c
  * Date: 3/4/2017
  * 
- * This test scrolls a veritical line across the matrix from right to 
+ * This test scrolls a letter A line across the matrix from right to 
  * left.
  * 
  * The LTP747R has anode columns and cathode rows in 5X7 orientation.
@@ -43,13 +43,17 @@
 #define AR5		PC5
 
 int main(void) {
-	uint8_t i;
+	uint8_t i;       // general loop counter
+	uint8_t colidx;  // used to loop through buffer columns
+	uint8_t chridx;  // used to index character segments
 	uint8_t r;
 	uint8_t rlc;
+	unsigned char buffer[7];
 	
     const int msecsDelayPost = 5;
     const int rowLoopCount = 7;
- 
+	const unsigned char letter[5] = {15,20,20,15,00};
+	
     // Set 4051 CBA input address pins as output
     DDRD |= ((1 << A) | (1 << B) | (1 << C));
 
@@ -57,9 +61,15 @@ int main(void) {
 	DDRC |= ((1 << AR1) | (1 << AR2) | (1 << AR3)
 			| (1 << AR4)| (1 << AR5));
 	
+	chridx = 0;
     while (1) {
 		// loop through the cathode columns
 		for (i = 7; i > 0; i--) {
+			colidx = i - 1;
+			buffer[colidx] = letter[chridx];
+			chridx++;
+			if (chridx > 4) {chridx = 0;}
+			
 			// clear 4051 CBA input address pins 
 			PORTD &= ~((1 << A) | (1 << B) | (1 << C));
 			// set 4051 CBA input address pins
@@ -72,8 +82,10 @@ int main(void) {
 					PORTC &= ~((1 << AR1) | (1 << AR2)
 							| (1 << AR3)| (1 << AR4)| (1 << AR5));
 					// set anode row
-					PORTC |= (1 << r);
-					_delay_ms (msecsDelayPost);
+					if ((buffer[colidx] & (1 << r-1)) > 0) {
+						PORTC |= (1 << r);
+						_delay_ms (msecsDelayPost);
+					}
 				}
 			}
 		}
