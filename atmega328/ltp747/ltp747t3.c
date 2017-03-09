@@ -47,6 +47,7 @@ int main(void) {
 	uint8_t colidx;  // used to loop through buffer columns
 	uint8_t chridx;  // used to index character segments
 	uint8_t r;
+	uint8_t n;
 	uint8_t rlc;
 	unsigned char buffer[7];
 	
@@ -63,13 +64,15 @@ int main(void) {
 	
 	chridx = 0;
     while (1) {
+		// load buffer
+		for (i = 6; i < 255; i--) {
+			buffer[i] = letter[chridx];
+			chridx++;
+			if (chridx > 4) {chridx = 0;}
+		}
 		// loop through the cathode columns
 		for (i = 7; i > 0; i--) {
 			colidx = i - 1;
-			buffer[colidx] = letter[chridx];
-			chridx++;
-			if (chridx > 4) {chridx = 0;}
-			
 			// clear 4051 CBA input address pins 
 			PORTD &= ~((1 << A) | (1 << B) | (1 << C));
 			// set 4051 CBA input address pins
@@ -77,15 +80,17 @@ int main(void) {
 						
 			// loop through anode rows
 			for (rlc = 1; rlc < rowLoopCount; rlc++) {
-				for (r = 5; r > 0; r--) {
+				n = 1;
+				for (r = 4; r < 255; r--) {
 					// clear anode row pins
 					PORTC &= ~((1 << AR1) | (1 << AR2)
 							| (1 << AR3)| (1 << AR4)| (1 << AR5));
 					// set anode row
-					if ((buffer[colidx] & (1 << r-1)) > 0) {
-						PORTC |= (1 << r);
+					if ((buffer[colidx] & n) > 0) {
+						PORTC |= (1 << n);
 						_delay_ms (msecsDelayPost);
 					}
+					n = n * 2;
 				}
 			}
 		}
