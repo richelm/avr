@@ -47,10 +47,14 @@ int main(void) {
 	uint8_t ltridx;  // used to index letter segments
 	uint8_t r;
 	uint8_t rlc;
+	uint8_t n;
 	
     const int msecsDelayPost = 250;
-    const int rowLoopCount = 7;
+    const int rowLoopCount = 3;
 	const unsigned char buffer[7] = {00,00,15,20,20,15,00}; // A
+	
+	// set PB0 as output for testing
+	DDRB |= (1 << PB0);
 	
     // Set 4051 CBA input address pins as output
     DDRD |= ((1 << A) | (1 << B) | (1 << C));
@@ -58,6 +62,9 @@ int main(void) {
 	// Set PORTC pins for anode rows as output
 	DDRC |= ((1 << AR1) | (1 << AR2) | (1 << AR3)
 			| (1 << AR4)| (1 << AR5));
+	
+	// clear PB0
+	PORTB &= ~(1 << PB0);
 	
 	ltridx = 4;
     while (1) {
@@ -70,14 +77,17 @@ int main(void) {
 
 			// set anode row
 			for (rlc = 1; rlc < rowLoopCount; rlc++) {
+			n = 1;
 			for (r = 1; r < 6; ++r) {
 				// clear anode row pins
 				PORTC &= ~((1 << AR1) | (1 << AR2)
 					| (1 << AR3)| (1 << AR4)| (1 << AR5));
-				if ((buffer[bufidx] & (1 << r)) > 0) {
+					
+				if ((buffer[bufidx] & n) > 0) {
 					PORTC |= (1 << r);
 					_delay_ms (msecsDelayPost);
 				}
+				n = n * 2;
 			}
 			}
 		}

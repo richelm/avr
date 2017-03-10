@@ -1,22 +1,22 @@
 #include <stdio.h>
 
 int main() {
-	unsigned int buffer[5] = {15,20,20,15,00};
-	unsigned int i;
-	unsigned int j;
-	unsigned int n;
+	const unsigned char buffer[7] = {00,00,15,20,20,15,00}; // A
+	unsigned int r;
+	unsigned int bufidx;
 	
-	i = 0;
-	for (i = 0; i < 5; i++) {
-		n = 1;
-		for (j = 4; j < 255; j--) {
-			printf("i: %d; n:%d; %d",buffer[i], n, (buffer[i] & n));
-			if ((buffer[i] & n) > 0) 
-				printf(" - 1\n");
-			else
-				printf(" - 0\n");
-			n = n * 2;
+
+	for (bufidx = 0; bufidx < 7; ++bufidx) {
+		printf("buffer[%d]: %d ",bufidx, buffer[bufidx]);
+		for (r = 0; r < 5; ++r) {
+			if ((buffer[bufidx] & (1 << r)) > 0) {
+				printf("%d ", (1 << r+1));
+			}
+			else {
+				printf("0");
+			}
 		}
+		printf("\n");
 	}
 		
 	return 0;
