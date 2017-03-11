@@ -3,7 +3,7 @@
  * File: ltp747t3.c
  * Date: 3/4/2017
  * 
- * This test display a letter A on the matrix.
+ * Test displaying character segments on the anode rows of the LTP747.
  * 
  * The LTP747R has anode columns and cathode rows in 5X7 orientation.
  * Here the LTP747R is being displayed sideways 7x5, we have anode rows
@@ -35,61 +35,73 @@
 #define C		PD4
 
 // LTP747R anode row pins
+#define AR0		PC0
 #define AR1		PC1
 #define AR2		PC2
 #define AR3		PC3
 #define AR4		PC4
-#define AR5		PC5
+
+#define MAXSIZE 5
+const unsigned char bitmap[MAXSIZE] = {0x0F,0x14,0x14,0x0F,0x00};
+
+void displaySegment(uint8_t seg) {
+	int msecsDelayPost = 250;
+	uint8_t s;
+	
+	for (s = 0; s < 5; s++) {
+		if (seg & (1 << s)) {
+			PORTC ^= (1 << s);
+			_delay_ms(msecsDelayPost);
+			PORTC ^= (1 << s);
+		}
+	}
+	
+	return;
+}
 
 int main(void) {
 	uint8_t i;       // general loop counter
-	uint8_t bufidx;  // used to index buffer columns
-	uint8_t ltridx;  // used to index letter segments
-	uint8_t r;
-	uint8_t rlc;
-	uint8_t n;
-	
-    const int msecsDelayPost = 250;
-    const int rowLoopCount = 3;
-	const unsigned char buffer[7] = {00,00,15,20,20,15,00}; // A
-	
-	// set PB0 as output for testing
-	DDRB |= (1 << PB0);
+	uint8_t j;       // general loop counter
+	uint8_t bmapidx; // index to bitmap
+	uint8_t segment; // bitmap segment to be displayed in buffer
 	
     // Set 4051 CBA input address pins as output
     DDRD |= ((1 << A) | (1 << B) | (1 << C));
 
 	// Set PORTC pins for anode rows as output
-	DDRC |= ((1 << AR1) | (1 << AR2) | (1 << AR3)
-			| (1 << AR4)| (1 << AR5));
-	
-	// clear PB0
+	DDRC |= ((1 << AR0) | (1 << AR1) | (1 << AR2)
+			| (1 << AR3)| (1 << AR4));
+
+	// Set PB0 as output
+	DDRB |= (1 << PB0);
 	PORTB &= ~(1 << PB0);
 	
-	ltridx = 4;
+	// clear the anode rows
+	PORTC &= ~((1 << AR0) | (1 << AR1)
+		| (1 << AR2)| (1 << AR3)| (1 << AR4));
+		
     while (1) {
-		// display the buffer
-		for (bufidx = 0; bufidx < 7; ++bufidx) {
+		bmapidx = 0;
+		while (bmapidx < 4) {
+			segment = bitmap[bmapidx];
+
 			// clear 4051 CBA input address pins 
 			PORTD &= ~((1 << A) | (1 << B) | (1 << C));
 			// set 4051 CBA input address pins
-			PORTD |= ((bufidx+1) << 2); // shift 2 to skip PD0 and PD1
-
-			// set anode row
-			for (rlc = 1; rlc < rowLoopCount; rlc++) {
-			n = 1;
-			for (r = 1; r < 6; ++r) {
-				// clear anode row pins
-				PORTC &= ~((1 << AR1) | (1 << AR2)
-					| (1 << AR3)| (1 << AR4)| (1 << AR5));
-					
-				if ((buffer[bufidx] & n) > 0) {
-					PORTC |= (1 << r);
-					_delay_ms (msecsDelayPost);
+			PORTD |= (bmapidx+1 << 2); // shift 2 to skip PD0 and PD1
+			
+			if (segment > 30) {
+				for (j = 0; j < 3; j++) {
+					PORTB ^= (1 << PB0);
+					_delay_ms(500);
+					PORTB ^= (1 << PB0);
+					_delay_ms(500);
 				}
-				n = n * 2;
 			}
-			}
+			displaySegment(segment);
+
+			bmapidx++;
+			
 		}
     }
  
