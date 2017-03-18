@@ -36,16 +36,17 @@
 #define C		PD4
 
 // LTP747R anode row pins
-#define AR1		PC1
-#define AR2		PC2
-#define AR3		PC3
-#define AR4		PC4
-#define AR5		PC5
+#define AR1		PC0
+#define AR2		PC1
+#define AR3		PC2
+#define AR4		PC3
+#define AR5		PC4
 
 int main(void) {
 	uint8_t i;
 	uint8_t r;
 	uint8_t rlc;
+	uint8_t seg;
 	
     const int msecsDelayPost = 5;
     const int rowLoopCount = 7;
@@ -56,7 +57,11 @@ int main(void) {
 	// Set PORTC pins for anode rows as output
 	DDRC |= ((1 << AR1) | (1 << AR2) | (1 << AR3)
 			| (1 << AR4)| (1 << AR5));
+	// clear anode row pins
+	PORTC &= ~((1 << AR1) | (1 << AR2)
+			| (1 << AR3)| (1 << AR4)| (1 << AR5));
 	
+	seg = 0x15;
     while (1) {
 		// loop through the cathode columns
 		for (i = 7; i > 0; i--) {
@@ -67,13 +72,13 @@ int main(void) {
 						
 			// loop through anode rows
 			for (rlc = 1; rlc < rowLoopCount; rlc++) {
-				for (r = 5; r > 0; r--) {
-					// clear anode row pins
-					PORTC &= ~((1 << AR1) | (1 << AR2)
-							| (1 << AR3)| (1 << AR4)| (1 << AR5));
-					// set anode row
-					PORTC |= (1 << r);
-					_delay_ms (msecsDelayPost);
+				for (r = 0; r < 5; r++) {
+					if (seg & (1 << r)) {
+						PORTC ^= (1 << r);
+						// set anode row
+						_delay_ms (msecsDelayPost);
+						PORTC ^= (1 << r);
+					}
 				}
 			}
 		}

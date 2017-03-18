@@ -4,8 +4,8 @@ SOURCES=$(PROJECT).c
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 ARCH=avr5
-MMCU=atmega328p
-CFLAGS=-mmcu=$(MMCU) -O1
+MMCU=atmega328
+CFLAGS=-mmcu=$(ARCH) -mmcu=$(MMCU) -O1
 PROGRAMMER=usbasp
 #PROGRAMMER=usbtiny
 
