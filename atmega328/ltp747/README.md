@@ -39,11 +39,11 @@ display. Initially the rows will be driven by 5 I/O pins on the 328.
       VSS (GND) -- 8     9 -- C
 
 
-### LTP747R
+### LTP747R (pin one is opposite of tab side)
 
     AC1 -- 1    12 -- CR1
     CR3 -- 2    11 -- CR2
-    AC2 -- 3    10 -- AC3
+    AC2 -- 3    10 -- AC3 (tab side)
     CR5 -- 4     9 -- CR4
     CR6 -- 5     8 -- AC5
     CR7 -- 6     7 -- AC4

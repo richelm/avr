@@ -24,7 +24,7 @@
  */
 
 
-#define F_CPU 1000000  // 1.0 MHz (8MHz / 8)
+#define F_CPU 1000000UL // 1.0 MHz (8MHz / 8)
 
 #include <avr/io.h>
 #include <util/delay.h>

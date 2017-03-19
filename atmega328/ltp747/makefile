@@ -1,10 +1,10 @@
 # AVR-GCC Makefile for AVR ATMEGA328 programs
-PROJECT=ltp747t3
+PROJECT=test1
 SOURCES=$(PROJECT).c
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 ARCH=avr5
-MMCU=atmega328
+MMCU=atmega328p
 CFLAGS=-mmcu=$(ARCH) -mmcu=$(MMCU) -O1
 
 # AVRDUDE settings
@@ -13,7 +13,7 @@ PARTNO=m328p
 #PROGRAMMER=usbtiny
 
 $(PROJECT).hex: $(PROJECT).out
-	$(OBJCOPY) -j .text -O ihex $(PROJECT).out $(PROJECT).hex
+	$(OBJCOPY) -j .text -j .data -O ihex $(PROJECT).out $(PROJECT).hex
 
 $(PROJECT).out: $(SOURCES)
 	$(CC) $(CFLAGS) -o $(PROJECT).out $(SOURCES)
