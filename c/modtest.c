@@ -1,3 +1,5 @@
+#define MAXLEN	5
+
 #include <stdio.h>
 
 
@@ -5,7 +7,7 @@ int main() {
 	unsigned int i;
 	unsigned int j;
 	unsigned int s;
-	unsigned int bitmap[3] = {0x15,0x0A,0x1F};
+	unsigned int bitmap[MAXLEN] = {0x15,0x0A,0x1F,0x0F,0x06};
 	
 	printf("mod test\n");
 	for (i = 7; i > 0; i--) {
@@ -13,11 +15,10 @@ int main() {
 	}
 	
 	j = 0;
-	for (i = 20; i > 0; i--) {
+	for (i = 10; i > 0; i--) {
 		s = bitmap[j];
 		printf("j: %d s: %x\n",j,s);
-		j++;
-		if (j > 2) {j = 0;}
+		j = (j+1)%MAXLEN;
 	}
 
 }

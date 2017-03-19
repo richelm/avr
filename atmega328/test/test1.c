@@ -13,7 +13,7 @@
  * 
  */
  
-#define F_CPU 1000000	// 1 MHz
+#define F_CPU 1000000UL	// 1 MHz
 
 // LTP747R anode row pins
 #define AR1		PC0
