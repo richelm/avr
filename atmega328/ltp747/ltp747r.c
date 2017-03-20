@@ -38,9 +38,15 @@
 #define AR4		PC3
 #define AR5		PC4
 
-#define MAXLEN	31
+#define MAXLEN			31
+#define MSECSDELAYPOST	 5
+#define ROWLOOPCOUNT	15
+
+// inlcudes
 #include <avr/io.h>
 #include <util/delay.h>
+#include <stdint.h>
+#include <avr/pgmspace.h>
 
 const unsigned char bitmap[MAXLEN] = {
 	0x01,
@@ -82,47 +88,45 @@ int main(void) {
 	uint8_t rlc;
 	int8_t seg;
 	
-    const int msecsDelayPost = 5;
-    const int rowLoopCount = 20;
-	
     // Set 4051 CBA input address pins as output
     DDRD |= ((1 << A) | (1 << B) | (1 << C));
-
+	// clear 4051 CBA input address pins 
+	PORTD &= ~((1 << A) | (1 << B) | (1 << C));
+	
 	// Set PORTC pins for anode rows as output
 	DDRC |= ((1 << AR1) | (1 << AR2) | (1 << AR3)
 			| (1 << AR4)| (1 << AR5));
 	// clear anode row pins
 	PORTC &= ~((1 << AR1) | (1 << AR2)
 			| (1 << AR3)| (1 << AR4)| (1 << AR5));
-	
-	s = 0;
+
+	// main event loop
     while (1) {
-		seg = bitmap[s];
-		s = (s+1)%MAXLEN;
-		
 		// loop through the cathode columns
-		//~ for (i = 7; i > 0; i--) {
-			//~ // clear 4051 CBA input address pins 
-			//~ PORTD &= ~((1 << A) | (1 << B) | (1 << C));
-			//~ // set 4051 CBA input address pins
-			//~ PORTD |= (i << 2); // shift 2 to skip PD0 and PD1
-			
-			// loop through anode rows
-			for (rlc = 1; rlc < rowLoopCount; rlc++) {
-				for (r = 0; r < 5; r++) {
-					//~ PORTC |= (seg << 0);
-					//~ _delay_ms (msecsDelayPost);
-					//~ PORTC &= ~(seg << 0);
-					if (seg & (1 << r)) {
-						PORTC ^= (1 << r);
-						_delay_ms (msecsDelayPost);
-						PORTC ^= (1 << r);
-					} else {
-						_delay_ms (msecsDelayPost);
+		for (i = 7; i > 0; i--) {
+			// set 4051 CBA input address pins
+			PORTD |= (i << 2); // shift 2 to skip PD0 and PD1
+
+			// loop through bitmap
+			for (s = 0; s < MAXLEN; s++) {
+				seg = bitmap[s];
+				
+				// loop through anode rows
+				for (rlc = 1; rlc < ROWLOOPCOUNT; rlc++) {
+					for (r = 0; r < 5; r++) {
+						if (seg & (1 << r)) {
+							PORTC ^= (1 << r);
+							_delay_ms (MSECSDELAYPOST);
+							PORTC ^= (1 << r);
+						} else {
+							_delay_ms (MSECSDELAYPOST);
+						}
 					}
 				}
 			}
-		//~ }
+			// clear 4051 CBA input address pins
+			PORTD &= ~(i << 2); // shift 2 to skip PD0 and PD1
+		}
     }
  
     return 0;
