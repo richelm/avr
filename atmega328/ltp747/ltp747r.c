@@ -39,8 +39,8 @@
 #define AR5		PC4
 
 #define MAXLEN			31
-#define MSECSDELAYPOST	 5
-#define ROWLOOPCOUNT	15
+#define MSECSDELAYPOST	 1
+#define ROWLOOPCOUNT	25
 
 // inlcudes
 #include <avr/io.h>
@@ -48,38 +48,7 @@
 #include <stdint.h>
 #include <avr/pgmspace.h>
 
-const unsigned char bitmap[MAXLEN] = {
-	0x01,
-	0x02,
-	0x03,
-	0x04,
-	0x05,
-	0x06,
-	0x07,
-	0x08,
-	0x09,
-	0x0A,
-	0x0B,
-	0x0C,
-	0x0D,
-	0x0E,
-	0x0F,
-	0x10,
-	0x11,
-	0x12,
-	0x13,
-	0x14,
-	0x15,
-	0x16,
-	0x17,
-	0x18,
-	0x19,
-	0x1A,
-	0x1B,
-	0x1C,
-	0x1D,
-	0x1E,
-	0x1F};
+const unsigned char buffer[7] = {0x0F,0x14,0x14,0x0F,0x1D,0x00,0x00};
 	
 int main(void) {
 	uint8_t i;
@@ -87,6 +56,7 @@ int main(void) {
 	uint8_t s;
 	uint8_t rlc;
 	int8_t seg;
+	int8_t dummy;
 	
     // Set 4051 CBA input address pins as output
     DDRD |= ((1 << A) | (1 << B) | (1 << C));
@@ -100,6 +70,7 @@ int main(void) {
 	PORTC &= ~((1 << AR1) | (1 << AR2)
 			| (1 << AR3)| (1 << AR4)| (1 << AR5));
 
+	dummy = 0;
 	// main event loop
     while (1) {
 		// loop through the cathode columns
@@ -107,21 +78,20 @@ int main(void) {
 			// set 4051 CBA input address pins
 			PORTD |= (i << 2); // shift 2 to skip PD0 and PD1
 
-			// loop through bitmap
-			for (s = 0; s < MAXLEN; s++) {
-				seg = bitmap[s];
-				
-				// loop through anode rows
-				for (rlc = 1; rlc < ROWLOOPCOUNT; rlc++) {
-					for (r = 0; r < 5; r++) {
-						if (seg & (1 << r)) {
-							PORTC ^= (1 << r);
-							_delay_ms (MSECSDELAYPOST);
-							PORTC ^= (1 << r);
-						} else {
-							_delay_ms (MSECSDELAYPOST);
-						}
-					}
+			seg = buffer[i-1];
+			
+			for (rlc = 1; rlc < ROWLOOPCOUNT; rlc++) {
+				for (r = 0; r < 5; r++) {
+					PORTC |= (seg & (1 << r));
+					//_delay_ms (MSECSDELAYPOST);
+					PORTC &= ~(seg & (1 << r));
+					//~ if (seg & (1 << r)) {
+						//~ PORTC ^= (1 << r);
+						//~ dummy = (dummy+1) % 7;
+						//~ PORTC ^= (1 << r);
+					//~ } else {
+						//~ //_delay_ms (MSECSDELAYPOST);
+					//~ }
 				}
 			}
 			// clear 4051 CBA input address pins
