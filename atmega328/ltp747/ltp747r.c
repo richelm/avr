@@ -39,8 +39,8 @@
 #define AR5		PC4
 
 #define MAXLEN			31
-#define MSECSDELAYPOST	 1
-#define ROWLOOPCOUNT	25
+#define MSECSDELAYPOST	 3
+#define ROWLOOPCOUNT	10
 
 // inlcudes
 #include <avr/io.h>
@@ -52,6 +52,7 @@ const unsigned char buffer[7] = {0x0F,0x14,0x14,0x0F,0x1D,0x00,0x00};
 	
 int main(void) {
 	uint8_t i;
+	uint8_t j;
 	uint8_t r;
 	uint8_t s;
 	uint8_t rlc;
@@ -79,21 +80,11 @@ int main(void) {
 			PORTD |= (i << 2); // shift 2 to skip PD0 and PD1
 
 			seg = buffer[i-1];
+
+			PORTC |= (seg << 0);
+			_delay_ms (MSECSDELAYPOST);
+			PORTC &= ~(seg << 0);
 			
-			for (rlc = 1; rlc < ROWLOOPCOUNT; rlc++) {
-				for (r = 0; r < 5; r++) {
-					PORTC |= (seg & (1 << r));
-					//_delay_ms (MSECSDELAYPOST);
-					PORTC &= ~(seg & (1 << r));
-					//~ if (seg & (1 << r)) {
-						//~ PORTC ^= (1 << r);
-						//~ dummy = (dummy+1) % 7;
-						//~ PORTC ^= (1 << r);
-					//~ } else {
-						//~ //_delay_ms (MSECSDELAYPOST);
-					//~ }
-				}
-			}
 			// clear 4051 CBA input address pins
 			PORTD &= ~(i << 2); // shift 2 to skip PD0 and PD1
 		}
