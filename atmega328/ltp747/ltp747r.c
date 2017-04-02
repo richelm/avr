@@ -38,7 +38,7 @@
 #define AR4		PC3
 #define AR5		PC4
 
-#define MAXLEN			15		// max message length */
+#define MAXLEN			26		// max message length */
 #define MSECSDELAYPOST	 1
 #define ROWLOOPCOUNT	10
 
@@ -49,7 +49,7 @@
 #include <avr/pgmspace.h>
 
 // message to display; 15 character MAX; must be define as global constant
-const char	mesg[] PROGMEM = "HELLO WORLD ";
+const char	mesg[] PROGMEM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 // valid letters in message
 const unsigned char font[27][5] PROGMEM = {
@@ -82,13 +82,7 @@ const unsigned char font[27][5] PROGMEM = {
 	{0x11,0x13,0x15,0x19,0x00}   // Z
 };
 
-int main(void) {
-	uint8_t i;
-	uint8_t r;
-	uint8_t seg;
-	
-	unsigned char buffer[7] = {0x00,0x0F,0x14,0x14,0x0F,0x1D,0x00};
-	
+void setup(void) {
     // Set 4051 CBA input address pins as output
     DDRD |= ((1 << A) | (1 << B) | (1 << C));
 	// clear 4051 CBA input address pins 
@@ -100,28 +94,69 @@ int main(void) {
 	// set anode row pins low
 	PORTC &= ~((1 << AR1) | (1 << AR2)
 			| (1 << AR3)| (1 << AR4)| (1 << AR5));
+}
 
+// read the next character from the message
+uint8_t readNextChar(uint8_t idx) {
+	uint8_t l;
+	l = pgm_read_byte(&(mesg[idx]));
+	if (l == 32)
+		l = 0;
+	else
+		l = l - 64;
+	return l;
+}
+
+int main(void) {
+	uint8_t i;
+	uint8_t r;
+	uint8_t seg;
+	uint8_t mi;    // message index
+	uint8_t bi;    // buffer index
+	uint8_t ltr;
+	uint8_t b;
+	
+	unsigned char buffer[7] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+	
+	setup();
+	
+	// test: put first letter of message in buffer
+
+	mi = 0;
+	ltr = readNextChar(mi);
+	
 	// main event loop
     while (1) {
-				
-		// loop through the cathode columns
-		for (i = 7; i > 0; i--) {
-			// set 4051 CBA input address pins
-			PORTD |= (i << 2); // shift 2 to skip PD0 and PD1
-
-			seg = buffer[i-1];
-			for (r = 0; r < 5; r++) {
-				if (seg & (1 << r)) {
-					// toggle anode bit
-					PORTC ^= (1 << r); 
-					_delay_ms (MSECSDELAYPOST);
-					PORTC ^= (1 << r); 
-				}
-			}
-			
-			// clear 4051 CBA input address pins
-			PORTD &= ~(i << 2); // shift 2 to skip PD0 and PD1
+		// load charater into buffer
+		for (bi = 0; bi < 5; bi++) {
+			buffer[bi] = pgm_read_byte(&(font[ltr][bi]));
 		}
+		
+		// display the buffer
+		for (b = 1; b < 30; b++) {
+			// loop through the cathode columns
+			for (i = 7; i > 0; i--) {
+				// set 4051 CBA input address pins
+				PORTD |= (i << 2); // shift 2 to skip PD0 and PD1
+
+				seg = buffer[i-1];
+				for (r = 0; r < 5; r++) {
+					if (seg & (1 << r)) {
+						// toggle anode bit
+						PORTC ^= (1 << r); 
+						_delay_ms (MSECSDELAYPOST);
+						PORTC ^= (1 << r); 
+					}
+				}
+				
+				// clear 4051 CBA input address pins
+				PORTD &= ~(i << 2); // shift 2 to skip PD0 and PD1
+			}
+		}
+		
+		// get next letter
+		mi = (mi+1) % MAXLEN;
+		ltr = readNextChar(mi);
     }
  
     return 0;
