@@ -1,0 +1,5 @@
+# .gitignore for AVR projects
+
+# hex and output files
+*.hex
+*.out
