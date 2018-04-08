@@ -1,5 +1,7 @@
-# AVR-GCC Makefile for AVR tiny13 sample programs
-PROJECT=tiny13f1
+# AVR-GCC Makefile for AVR tiny13 programs
+
+# change PROJECT name to project's main C program filename.
+PROJECT=cd4017
 SOURCES=$(PROJECT).c
 CC=avr-gcc
 OBJCOPY=avr-objcopy
@@ -16,8 +18,6 @@ $(PROJECT).out: $(SOURCES)
 
 flash: $(PROJECT).hex
 	avrdude -p t13 -c usbasp -e -U flash:w:$(PROJECT).hex
-#	avrdude -p t13 -c usbtiny -e -U flash:w:$(PROJECT).hex
-#	avrdude -p t13 -c stk500v2 -P /dev/ttyACM0 -e -U flash:w:$(PROJECT).hex
 
 clean:
 	rm -f $(PROJECT).out
